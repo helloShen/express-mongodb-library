@@ -1,10 +1,12 @@
 /* modules */
-import createError from 'http-errors';
 import express from 'express';
+import mongoose from 'mongoose';
+import createError from 'http-errors';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import compression from 'compression';
+import helmet from 'helmet';
 /* routes */
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
@@ -20,9 +22,13 @@ const app = express();
 // Use Helmet to protect against well known vulnerabilities
 app.use(helmet());
 
-//Set up mongoose connection
-import mongoose from 'mongoose';
-const mongoDB = 'mongodb+srv://shen:mongomongoose@library.gwvuc.mongodb.net/?retryWrites=true&w=majority';
+/* 
+ * Set up mongoose connection.
+ * Get the connection string from an environment variable
+ * named MONGODB_URI
+ */
+const dev_db_url = 'mongodb+srv://shen:mongomongoose@library.gwvuc.mongodb.net/?retryWrites=true&w=majority';
+const mongoDB = process.env.MONGODB_URI || dev_db_url;
 mongoose.connect(mongoDB, { useNewUrlParser: true , useUnifiedTopology: true});
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
