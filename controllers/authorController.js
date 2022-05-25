@@ -108,7 +108,11 @@ export function author_delete_get(req, res) {
         res.redirect('/catalog/authors');
     }
     // Successful, so render.
-    res.render('author_delete', { title: 'Delete Author', author: results.author, author_books: results.authors_books } );
+    res.render('author_delete', {
+      title: 'Delete Author',
+      author: results.author,
+      author_books: results.authors_books
+    });
   });
 };
 
