@@ -1,6 +1,6 @@
 {
-  "name": "local-library",
-  "version": "0.0.0",
+  "name": "express-mongodb-library",
+  "version": "1.0.0",
   "engines": {
     "node": "16.15.0"
   },
