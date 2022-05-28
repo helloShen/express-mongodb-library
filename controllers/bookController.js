@@ -3,7 +3,7 @@ import Author from '../models/author.js';
 import Genre from '../models/genre.js';
 import BookInstance from '../models/bookinstance.js';
 import async from 'async';
-import {body, validationResult} from 'express-validator';
+import {body, check, validationResult} from 'express-validator';
 
 export function index(req, res) {
   async.parallel({
@@ -51,6 +51,7 @@ export function book_detail(req, res, next) {
   async.parallel({
     book: function(callback) {
       Book.findById(req.params.id)
+        .populate('author genre')
         .exec(callback);
     },
     book_instance: function(callback) {
@@ -81,7 +82,9 @@ export function book_create_get(req, res, next) {
       Author.find(callback);
     },
     genres: function(callback) {
-      Genre.find(callback);
+      Genre.find()
+        .populate()
+        .exec(callback);
     }
   }, function(err, results) {
     if (err) return next(err);
@@ -92,6 +95,23 @@ export function book_create_get(req, res, next) {
     })
   });
 };
+
+const checklist = [
+  body('title', 'Title must not be empty.')
+    .trim()
+    .isLength({min: 1}),
+    // .escape(),
+  body('author', 'Author must not be empty.')
+    .trim()
+    .isLength({min: 1}),
+    // .escape(),
+  body('isbn', 'ISBN must not be empty')
+    .trim()
+    .isLength({min: 1}),
+    // .escape(),
+  body('genre.*'),
+    // .escape(),
+];
 
 // Handle book create on POST.
 export const book_create_post = [
@@ -107,20 +127,7 @@ export const book_create_post = [
     next();
   },
   // Validate and sanitize fields.
-  body('title', 'Title must not be empty.')
-    .trim()
-    .isLength({min: 1}),
-    // .escape(),
-  body('author', 'Author must not be empty.')
-    .trim()
-    .isLength({min: 1}),
-    // .escape(),
-  body('isbn', 'ISBN must not be empty')
-    .trim()
-    .isLength({min: 1}),
-    // .escape(),
-  body('genre.*')
-    .escape(),
+  ...checklist, 
   //Process request after validation and sanitization.
   (req, res, next) => {
     // Extract the validation errors from a request.
@@ -170,13 +177,37 @@ export const book_create_post = [
 ];
 
 // Display book delete form on GET.
-export function book_delete_get(req, res) {
-    res.send('NOT IMPLEMENTED: Book delete GET');
+export function book_delete_get(req, res, next) {
+  async.parallel({
+    book: function(callback) {
+      Book.findById(req.params.id)
+        .exec(callback);
+    },
+    bookinstances: function(callback) {
+      BookInstance.find({'book': req.params.id})
+        .exec(callback);
+    }
+  }, function(err, results) {
+    if (err) return next(err);
+    if (results.book == null) {
+      const err = new Error('Book not found.');
+      err.status = 404;
+      return next(err);
+    }
+    res.render('book_delete', {
+      title: 'Delete Book',
+      book: results.book,
+      bookinstances: results.bookinstances
+    });
+  });
 };
 
 // Handle book delete on POST.
-export function book_delete_post(req, res) {
-    res.send('NOT IMPLEMENTED: Book delete POST');
+export function book_delete_post(req, res, next) {
+  Book.findByIdAndRemove(req.params.id, function delete_book(err) {
+    if (err) return next(err);
+    res.redirect('/catalog/books');
+  });
 };
 
 // Display book update form on GET.
@@ -195,9 +226,7 @@ export function book_update_get(req, res) {
     }, function(err, results) {
       if (err) { return next(err); }
       if (results.book==null) { // No results.
-          var err = new Error('Book not found');
-          err.status = 404;
-          return next(err);
+        res.redirect('/catalog/books');
       }
       // Success.
       // Mark our selected genres as checked.
@@ -225,14 +254,8 @@ export const book_update_post = [
       }
       next();
   },
-
   // Validate and sanitize fields.
-  body('title', 'Title must not be empty.').trim().isLength({ min: 1 }).escape(),
-  body('author', 'Author must not be empty.').trim().isLength({ min: 1 }).escape(),
-  body('summary', 'Summary must not be empty.').trim().isLength({ min: 1 }).escape(),
-  body('isbn', 'ISBN must not be empty').trim().isLength({ min: 1 }).escape(),
-  body('genre.*').escape(),
-
+  ...checklist,
   // Process request after validation and sanitization.
   (req, res, next) => {
 

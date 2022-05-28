@@ -26,7 +26,17 @@ const BookInstanceSchema = new Schema({
 });
 
 BookInstanceSchema.virtual('due_back_formatted').get(function() {
-  return DateTime.fromJSDate(this.due_back).toLocaleString(DateTime.DATE_MED);
+  let formatted = '';
+  if (this.due_back) {
+    const y = this.due_back.getUTCFullYear();
+    const m = this.due_back.getUTCMonth() + 1; // month is 0 based
+    const d = this.due_back.getUTCDate();
+    const y_str = y.toString();
+    const m_str = (m >= 10) ? m.toString() : '0' + m.toString();
+    const d_str = (d >= 10) ? d.toString() : '0' + d.toString();
+    formatted = `${y_str}-${m_str}-${d_str}`;
+  }
+  return formatted;
 });
 
 BookInstanceSchema.virtual('url').get(function() {

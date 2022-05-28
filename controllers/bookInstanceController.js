@@ -1,6 +1,8 @@
 import BookInstance from '../models/bookinstance.js';
 import Book from '../models/book.js';
 import {body, validationResult} from 'express-validator';
+import async from 'async';
+// import {redirect} from 'express/lib/response';
 
 // Display list of all BookInstances.
 export function bookinstance_list(req, res, next) {
@@ -43,14 +45,27 @@ export function bookinstance_create_get(req, res, next) {
     });
 };
 
+const checklist = [
+  body('book', 'Book must be specified')
+  .trim()
+  .isLength({min: 1})
+  .escape(),
+  body('imprint', 'Imprint must be specified.')
+    .trim()
+    .isLength({min: 1})
+    .escape(),
+  body('status', 'Status must be specified.')
+    .optional({checkFalsy: true}),
+  body('due_back', 'Invalid date')
+    .optional({checkFalsy: true})
+    .isISO8601()
+    .toDate()
+];
+
 // Handle BookInstance create on POST.
 export const bookinstance_create_post = [
     // Validate and sanitize fields.
-    body('book', 'Book must be specified').trim().isLength({ min: 1 }).escape(),
-    body('imprint', 'Imprint must be specified').trim().isLength({ min: 1 }).escape(),
-    body('status').escape(),
-    body('due_back', 'Invalid date').optional({ checkFalsy: true }).isISO8601().toDate(),
-
+    ...checklist,
     // Process request after validation and sanitization.
     (req, res, next) => {
 
@@ -87,21 +102,76 @@ export const bookinstance_create_post = [
 ];
 
 // Display BookInstance delete form on GET.
-export function bookinstance_delete_get(req, res) {
-    res.send('NOT IMPLEMENTED: BookInstance delete GET');
+export function bookinstance_delete_get(req, res, next) {
+  BookInstance.findById(req.params.id)
+    .exec(function(err, bookinstance) {
+      if (err) return next(err);
+      if (bookinstance == null) {
+        res.redirect('/catalog/bookinstances');
+      } else {
+        res.render('bookinstance_delete', {
+          title: 'Delete Bookinstance',
+          bookinstance: bookinstance
+        });
+      }
+    });
 };
 
 // Handle BookInstance delete on POST.
-export function bookinstance_delete_post(req, res) {
-    res.send('NOT IMPLEMENTED: BookInstance delete POST');
+export function bookinstance_delete_post(req, res, next) {
+  BookInstance.findById(req.params.id)
+    .exec(function(err, bookinstance) {
+      if (err) return next(err);
+      BookInstance.findByIdAndRemove(req.params.id, function deleteBookInstance(err) {
+        if (err) next(err);
+        res.redirect('/catalog/bookinstances');
+      });
+  });
 };
 
 // Display BookInstance update form on GET.
-export function bookinstance_update_get(req, res) {
-    res.send('NOT IMPLEMENTED: BookInstance update GET');
+export function bookinstance_update_get(req, res, next) {
+  async.parallel({
+    bookinstance: function(callback) {
+      BookInstance.findById(req.params.id)
+        .exec(callback);
+    },
+    books: function(callback) {
+      Book.find()
+        .exec(callback);
+    }
+  }, function(err, results) {
+    if (err) return next(err);
+    if (results.bookinstance == null) {
+      res.redirect('/catalog/bookinstances');
+    } else {
+      res.render('bookinstance_form', {
+        title: 'Update book copy',
+        bookinstance: results.bookinstance,
+        book_list: results.books
+      });
+    }
+  });
 };
 
 // Handle bookinstance update on POST.
-export function bookinstance_update_post(req, res) {
-    res.send('NOT IMPLEMENTED: BookInstance update POST');
-};
+export const bookinstance_update_post = [
+  ...checklist,  
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return bookinstance_update_get(req, res, next);
+    }
+    const newCopy = new BookInstance({
+      book: req.body.book,
+      imprint: req.body.imprint,
+      status: req.body.status,
+      due_back: req.body.due_back,
+      _id: req.params.id
+    });
+    BookInstance.findByIdAndUpdate(req.params.id, newCopy, {}, function(err, theCopy) {
+      if (err) return next(err);
+      res.redirect(theCopy.url);
+    });
+  }
+];

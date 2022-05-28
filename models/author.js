@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import {DateTime} from 'luxon';
+// import {DateTime} from 'luxon';
 
 const Schema = mongoose.Schema;
 
@@ -26,15 +26,35 @@ AuthorSchema.virtual('name').get(function() {
   return fullname;
 });
 
+function formatDate(date) {
+  let formatted = '';
+  if (date) {
+    const y = date.getUTCFullYear();
+    const m = date.getUTCMonth() + 1; // month is 0 based
+    const d = date.getUTCDate();
+    const y_str = y.toString();
+    const m_str = (m >= 10) ? m.toString() : '0' + m.toString();
+    const d_str = (d >= 10) ? d.toString() : '0' + d.toString();
+    formatted = `${y_str}-${m_str}-${d_str}`;
+  }
+  return formatted;
+}
+
+AuthorSchema.virtual('birthday_str').get(function() {
+  return formatDate(this.date_of_birth);
+});
+
+AuthorSchema.virtual('deathday_str').get(function() {
+  return formatDate(this.date_of_death);
+});
+
 AuthorSchema.virtual('lifespan').get(function() {
   let lifespan = '';
   if (this.date_of_birth) {
-    // lifespan = this.date_of_birth.getYear().toString() + ' - ';
-    lifespan = DateTime.fromJSDate(this.date_of_birth).toLocaleString(DateTime.DATE_MED) + ' - ';
+    lifespan = formatDate(this.date_of_birth) + ' ~ ';
   }
   if (this.date_of_death) {
-    // lifespan += this.date_of_death.getYear().toString();
-    lifespan += DateTime.fromJSDate(this.date_of_death).toLocaleString(DateTime.DATE_MED);
+    lifespan += formatDate(this.date_of_death);
   }
   return lifespan;
 });
