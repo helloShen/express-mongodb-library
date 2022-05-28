@@ -1,16 +1,54 @@
 @import url('https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100;400;700&family=Roboto+Slab:wght@100;400;700&family=Roboto:wght@100;400;700&display=swap');
 
 body {
-  padding: 50px;
+  min-height: 100vh;
+  --border: rgba(0,0,0,.40);
+  padding: 0 50px;
+  padding-top: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  display: grid;
+  grid-template-rows: 1fr 3rem;
 }
 
 a {
   color: #00B7FF;
+  font-size: 1rem;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
 }
 
 .sidebar-nav {
   margin-top: 20px;
   padding: 0;
   list-style: none;
+}
+
+.title {
+  font-family: 'Roboto Slab', serif;
+}
+
+.badge.bg-primary {
+  color: white;
+}
+
+.author__lifespan {
+  font-size: .75rem;
+  font-family: 'Roboto Slab', serif;
+  color: var(--border);
+}
+
+.book__author {
+  font-size: .75rem;
+  font-family: 'Roboto', sans-serif;
+  color: var(--border);
+}
+
+.footer {
+  align-self: center;
+  justify-self: center;
+  color: var(--border);
 }

@@ -1,8 +1,8 @@
 extends layout
 
 block content
-  h1 #{title}: #{book.title}
-
+  h1.title #{title}: #{book.title}
+  hr
   if bookinstances.length
     p #[strong Delete the following books copies before attempting to delete this book.]
 

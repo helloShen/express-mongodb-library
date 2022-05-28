@@ -2,7 +2,7 @@ extends layout
 
 block content
   h1 #{title}
-
+  hr
   form(method='POST' action='')
     div.form-group
       label(for='name') Genre:
@@ -12,7 +12,8 @@ block content
         name='name',
         value=(undefined===genre? '' : genre.name)
       )
-      button.btn.btn-primary(type='submit') Submit
+
+    button.btn.btn-primary(type='submit') Submit
 
   if errors
     ul

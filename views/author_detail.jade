@@ -2,9 +2,9 @@ extends layout
 
 block content
 
-  h1 Author: #{author.name}
+  h1.title Author: #{author.name}
   p #{author.lifespan}
-
+  hr
   div(style='margin-left:20px;margin-top:20px')
 
     h4 Books
@@ -18,8 +18,11 @@ block content
       else
         p This author has no books.
         
-    hr
+  hr
+  div(style='display:grid;grid-auto-flow:column;justify-content:start;gap:.5em;')
     p
-      a(href=author.url+'/delete') Delete author   
+      a(href=author.url+'/delete') 
+        button.btn.btn-primary Delete author   
     p
-      a(href=author.url+'/update') Update author   
+      a(href=author.url+'/update')
+        button.btn.btn-primary Update author   

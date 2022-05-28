@@ -2,8 +2,8 @@ extends layout
 
 block content
 
-  h1 ID: #{bookinstance._id}
-
+  h1.title Book ID: #{bookinstance._id}
+  hr
   p #[strong Title: ]
     a(href=bookinstance.book.url) #{bookinstance.book.title}
   p #[strong Imprint:] #{bookinstance.imprint}
@@ -19,7 +19,11 @@ block content
   if bookinstance.status!='Available'
     p #[strong Due back:] #{bookinstance.due_back_formatted}
   
-  p
-    a(href=bookinstance.url+'/delete') Delete
-  p
-    a(href=bookinstance.url+'/update') Update
+  hr
+  div(style='display:grid;grid-auto-flow:column;justify-content:start;gap:.5em;')
+    span
+      a(href=bookinstance.url+'/delete')
+        button.btn.btn-primary Delete
+    span
+      a(href=bookinstance.url+'/update')
+        button.btn.btn-primary Update

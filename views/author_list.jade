@@ -1,14 +1,14 @@
 extends layout
 
 block content
-  h1= title
-
-  ul
+  h1.title= title
+  ul.list-group
     each author in author_list
-      li
-        a(href=author.url) #{author.name}
+      li.list-group-item
+        a(href=author.url) 
+          span.author__list #{author.name} 
         //- |  (#{author.date_of_birth} - #{author.date_of_death})
-        | (#{author.lifespan})
+        span.author__lifespan (#{author.lifespan})
 
     else
       li There are no authors.

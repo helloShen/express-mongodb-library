@@ -1,11 +1,10 @@
 extends layout
 
 block content
-  h1= title
-
-  ul
+  h1.title= title
+  ul.list-group
     each genre in genre_list
-      li
+      li.list-group-item
         a(href=genre.url) #{genre.name}
 
     else

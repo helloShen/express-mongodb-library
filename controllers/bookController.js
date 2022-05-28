@@ -25,7 +25,7 @@ export function index(req, res) {
   }, function(err, results) {
     console.log(results);
     res.render('index', {
-      title: 'Local Library Home',
+      title: 'Tiny Express Mongodb Library',
       error: err,
       data: results
     });

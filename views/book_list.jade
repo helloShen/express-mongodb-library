@@ -1,13 +1,12 @@
 extends layout
 
 block content
-  h1= title
-
-  ul
+  h1.title= title
+  ul.list-group
     each book in book_list
-      li
-        a(href=book.url) #{book.title}
-        |  (#{book.author.name})
+      li.list-group-item
+        a(href=book.url) #{book.title} 
+        span.book__author [#{book.author.name}]
 
     else
       li There are no books.
